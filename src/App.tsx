@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { PatientSummary } from './components/PatientSummary';
 import { ChatInterface } from './components/ChatInterface';
 import type { PatientSummary as PatientSummaryType } from './types/patient';
@@ -11,25 +11,44 @@ import patientData from './summary.json';
 function App() {
   const [activeTab, setActiveTab] = useState<'chat' | 'summary'>('chat');
   const [sidebarOpen, setSidebarOpen] = useState(false);
+  const [isDesktop, setIsDesktop] = useState(window.innerWidth >= 768);
   
   const typedPatientData = patientData as PatientSummaryType;
+
+  useEffect(() => {
+    const handleResize = () => {
+      setIsDesktop(window.innerWidth >= 768);
+    };
+    
+    window.addEventListener('resize', handleResize);
+    return () => window.removeEventListener('resize', handleResize);
+  }, []);
 
   return (
     <div className="h-screen bg-background flex">
       {/* Mobile menu button */}
-      <Button
-        variant="ghost"
-        size="icon"
-        className="fixed top-4 left-4 z-50 md:hidden"
-        onClick={() => setSidebarOpen(!sidebarOpen)}
-      >
-        {sidebarOpen ? <X className="w-4 h-4" /> : <Menu className="w-4 h-4" />}
-      </Button>
+      {!isDesktop && (
+        <Button
+          variant="ghost"
+          size="icon"
+          className="fixed top-4 left-4 z-50"
+          onClick={() => setSidebarOpen(!sidebarOpen)}
+        >
+          {sidebarOpen ? <X className="w-4 h-4" /> : <Menu className="w-4 h-4" />}
+        </Button>
+      )}
 
       {/* Sidebar */}
-      <div className={`${
-        sidebarOpen ? 'translate-x-0' : '-translate-x-full'
-      } md:translate-x-0 fixed md:static z-40 w-80 h-full bg-card border-r transition-transform duration-300 ease-in-out flex flex-col`}>
+      <aside 
+        className="w-80 bg-card border-r h-full flex flex-col transition-transform duration-300 ease-in-out"
+        style={{
+          position: isDesktop ? 'static' : 'fixed',
+          zIndex: isDesktop ? 'auto' : 40,
+          transform: isDesktop ? 'none' : sidebarOpen ? 'translateX(0)' : 'translateX(-100%)',
+          left: isDesktop ? 'auto' : 0,
+          top: isDesktop ? 'auto' : 0
+        }}
+      >
         
         {/* Header */}
         <div className="p-6 border-b">
@@ -52,7 +71,7 @@ function App() {
               className="w-full justify-start"
               onClick={() => {
                 setActiveTab('chat');
-                setSidebarOpen(false);
+                if (!isDesktop) setSidebarOpen(false);
               }}
             >
               <MessageSquare className="w-4 h-4 mr-2" />
@@ -63,7 +82,7 @@ function App() {
               className="w-full justify-start"
               onClick={() => {
                 setActiveTab('summary');
-                setSidebarOpen(false);
+                if (!isDesktop) setSidebarOpen(false);
               }}
             >
               <FileText className="w-4 h-4 mr-2" />
@@ -102,18 +121,18 @@ function App() {
             </CardContent>
           </Card>
         </div>
-      </div>
+      </aside>
 
       {/* Overlay for mobile */}
-      {sidebarOpen && (
+      {!isDesktop && sidebarOpen && (
         <div 
-          className="fixed inset-0 bg-black/50 z-30 md:hidden"
+          className="fixed inset-0 bg-black/50 z-30"
           onClick={() => setSidebarOpen(false)}
         />
       )}
 
       {/* Main Content */}
-      <div className="flex-1 flex flex-col md:ml-0">
+      <div className="flex-1 flex flex-col">
         <div className="flex-1 p-4 md:p-6">
           {activeTab === 'chat' ? (
             <ChatInterface patientData={typedPatientData} />
