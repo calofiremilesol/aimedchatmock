@@ -29,7 +29,7 @@ function App() {
       {/* Sidebar */}
       <div className={`${
         sidebarOpen ? 'translate-x-0' : '-translate-x-full'
-      } md:translate-x-0 fixed md:relative z-40 w-80 h-full bg-card border-r transition-transform duration-300 ease-in-out`}>
+      } md:translate-x-0 fixed md:static z-40 w-80 h-full bg-card border-r transition-transform duration-300 ease-in-out flex flex-col`}>
         
         {/* Header */}
         <div className="p-6 border-b">
