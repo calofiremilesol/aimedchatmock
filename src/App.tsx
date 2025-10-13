@@ -1,4 +1,5 @@
 import { useState, useEffect } from 'react';
+import './App.css';
 import { PatientSummary } from './components/PatientSummary';
 import { ChatInterface } from './components/ChatInterface';
 import type { PatientSummary as PatientSummaryType } from './types/patient';
